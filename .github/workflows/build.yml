@@ -1,0 +1,29 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build fleet_x_amr on ROS 2 Jazzy
+    runs-on: ubuntu-24.04
+    container: ros:jazzy-ros-base
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install colcon
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends python3-colcon-common-extensions
+
+      - name: Build package
+        shell: bash
+        run: |
+          source /opt/ros/jazzy/setup.bash
+          colcon build --packages-select fleet_x_amr \
+            --cmake-args -DBUILD_TESTING=OFF

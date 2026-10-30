@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<!--
+  FLEET-X : ros2_control integration.
+
+  Two pieces are declared here:
+
+  1. <ros2_control>  - the hardware side. It names the Gazebo simulation
+     hardware component (gz_ros2_control/GazeboSimSystem, loaded by the Gazebo
+     system plugin through its own GazeboSimSystemInterface class loader) and
+     enumerates, per wheel joint, the command and state interfaces that the
+     controllers are allowed to claim.
+
+       left_wheel_joint  : velocity command, position + velocity state
+       right_wheel_joint : velocity command, position + velocity state
+
+     Every value below is READ BACK BY GAZEBO from the actual simulated joint,
+     so the wheel encoder data is genuine physics output. Nothing here is
+     synthesised by a timer.
+
+  2. <gazebo><plugin>  - the Gazebo system plugin that instantiates the
+     controller_manager and wires it to this model's joints. Its <parameters>
+     child points at the controllers YAML.
+
+     The path has to be absolute by the time Gazebo reads it, because Gazebo does
+     not expand $(find pkg) inside a URDF that it converts to SDF. Xacro does
+     expand it here, while the description is being generated, so naming the
+     package here is enough to produce an absolute path.
+-->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <ros2_control name="FLEET_X_AMR_HARDWARE" type="system">
+
+    <hardware>
+      <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+    </hardware>
+
+    <joint name="left_wheel_joint">
+      <command_interface name="velocity">
+        <param name="min">-100.0</param>
+        <param name="max">100.0</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+
+    <joint name="right_wheel_joint">
+      <command_interface name="velocity">
+        <param name="min">-100.0</param>
+        <param name="max">100.0</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+
+  </ros2_control>
+
+  <gazebo>
+    <plugin filename="libgz_ros2_control-system.so"
+            name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+      <parameters>$(find fleet_x_amr)/config/fleet_x_amr_controllers.yaml</parameters>
+      <controller_manager_prefix_node_name>controller_manager</controller_manager_prefix_node_name>
+    </plugin>
+  </gazebo>
+
+  <!-- Ground traction. Without an explicit friction the default coefficient
+       is low enough for the driven wheels to slip against the floor, which
+       would make the odometry disagree with the real travelled distance. -->
+  <gazebo reference="left_wheel">
+    <mu1>1.2</mu1>
+    <mu2>1.2</mu2>
+    <friction>
+      <ode>
+        <mu>1.2</mu>
+        <mu2>1.2</mu2>
+      </ode>
+    </friction>
+  </gazebo>
+
+  <gazebo reference="right_wheel">
+    <mu1>1.2</mu1>
+    <mu2>1.2</mu2>
+    <friction>
+      <ode>
+        <mu>1.2</mu>
+        <mu2>1.2</mu2>
+      </ode>
+    </friction>
+  </gazebo>
+
+</robot>

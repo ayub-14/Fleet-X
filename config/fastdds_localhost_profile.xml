@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Fast DDS profile for reliable single-machine operation.
+
+  On some development machines the Wi-Fi multicast path is unreliable, which
+  makes Fast DDS participants (ROS 2 nodes) lose the graph intermittently
+  ("Exception sending a multicast message: Network is unreachable").
+
+  This profile restricts Fast DDS to the loopback interface (127.0.0.1)
+  via an interface whitelist, so discovery AND data stay on loopback.
+  Reliable on a single machine and independent of the Wi-Fi link.
+
+  Optional; scripts/setup_fleet_x.sh exports it automatically when present.
+-->
+<profiles>
+
+  <transport_descriptors>
+    <transport_descriptor>
+      <transport_id>fleet_loopback_udp</transport_id>
+      <type>UDPv4</type>
+      <interfaceWhiteList>
+        <address>127.0.0.1</address>
+      </interfaceWhiteList>
+      <maxMessageSize>65500</maxMessageSize>
+      <maxInitialPeersRange>100</maxInitialPeersRange>
+      <calculateCrc>true</calculateCrc>
+      <checkCrc>true</checkCrc>
+    </transport_descriptor>
+  </transport_descriptors>
+
+  <participant profile_name="fleet_loopback_only" is_default_profile="true">
+    <rtps>
+      <userTransports>
+        <transport_id>fleet_loopback_udp</transport_id>
+      </userTransports>
+      <useBuiltinTransports>false</useBuiltinTransports>
+    </rtps>
+  </participant>
+
+</profiles>

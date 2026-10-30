@@ -1,0 +1,51 @@
+name: Feature request
+description: Propose a feature or a roadmap milestone for FLEET-X
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        FLEET-X distinguishes verified features from planned work. Please state
+        which phase your proposal belongs to and how it can be tested.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or motivation
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the behaviour, interfaces and scope.
+    validations:
+      required: true
+  - type: dropdown
+    id: phase
+    attributes:
+      label: Roadmap phase
+      options:
+        - Phase 2C - localization
+        - Phase 2D - Nav2
+        - Phase 3 - multi-AMR simulation
+        - Phase 4 - robot-to-robot communication
+        - Phase 5 - fleet coordination
+        - Phase 6 - edge-AI and dashboard
+        - Documentation / tooling
+    validations:
+      required: true
+  - type: textarea
+    id: testing
+    attributes:
+      label: How should this be verified?
+      description: Commands, topics, metrics or scenarios that prove it works.
+    validations:
+      required: true
+  - type: checkboxes
+    id: honesty
+    attributes:
+      label: Status discipline
+      options:
+        - label: I understand that this feature must not be described as complete until it has been tested and documented.
+          required: true

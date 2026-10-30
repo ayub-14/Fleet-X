@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<!--
+  FLEET-X : single source of truth for the AMR's physical dimensions.
+
+  Every dimension used by the geometry (this file) and by the
+  diff_drive_controller (config/fleet_x_amr_controllers.yaml) is derived from
+  the values declared here. The launch file reads these same values and asserts
+  that the controller YAML agrees with them, so the two can never silently
+  drift apart.
+
+  Frame convention
+  ================
+    world / Gazebo world frame, +Z up, ground plane at z = 0.
+    base_footprint  : projection of the rotation centre onto the ground.
+    base_link       : rigid chassis centre, lifted by BASE_LINK_HEIGHT.
+    left_wheel_joint / right_wheel_joint : wheel spin axes.
+-->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- ==================== Drive geometry ==================== -->
+  <!-- Wheel contact patch radius. Also the odometry conversion constant:
+       v = wheel_radius * wheel_angular_velocity. -->
+  <xacro:property name="WHEEL_RADIUS" value="0.05"/>
+  <!-- Wheel thickness along its spin axis (the robot's Y axis). -->
+  <xacro:property name="WHEEL_WIDTH" value="0.04"/>
+
+  <!-- Track width: centre-to-centre distance of the two wheel contact
+       points. This is the "wheel_separation" consumed by
+       diff_drive_controller. -->
+  <xacro:property name="WHEEL_SEPARATION" value="0.30"/>
+
+  <!-- ==================== Chassis geometry ==================== -->
+  <xacro:property name="BASE_LENGTH" value="0.40"/>
+  <xacro:property name="BASE_HEIGHT" value="0.10"/>
+  <xacro:property name="BASE_LINK_HEIGHT" value="0.10"/>
+  <xacro:property name="BASE_MASS" value="5.0"/>
+  <xacro:property name="WHEEL_MASS" value="0.5"/>
+
+  <!-- Gap kept between the chassis side and the inner face of a wheel. -->
+  <xacro:property name="WHEEL_CLEARANCE" value="0.01"/>
+
+  <!--
+    Half-width of the chassis, DERIVED rather than chosen independently.
+
+    The wheel inner face sits at (WHEEL_SEPARATION - WHEEL_WIDTH) / 2 from the
+    centre line, so the chassis must be narrower than that. If the chassis box
+    and the wheel cylinders overlap, Gazebo generates contacts between two
+    links of the same model: the wheels are then jammed against the body, the
+    model visibly skews (it pitches and yaws on the spot) and the AMR drives
+    nowhere even though the wheel joints and the odometry advance normally.
+    That failure is silent, so the width is computed instead of hand-tuned.
+  -->
+  <xacro:property
+    name="BASE_HALF_WIDTH"
+    value="${(WHEEL_SEPARATION - WHEEL_WIDTH) / 2.0 - WHEEL_CLEARANCE}"/>
+
+  <xacro:property name="BASE_WIDTH" value="${2.0 * BASE_HALF_WIDTH}"/>
+
+  <!-- Derived: wheel spin axis height above the ground equals the wheel
+       radius, so the wheels rest exactly on the ground plane. -->
+  <xacro:property
+    name="WHEEL_AXLE_Z"
+    value="${BASE_LINK_HEIGHT - WHEEL_RADIUS}"/>
+
+</robot>

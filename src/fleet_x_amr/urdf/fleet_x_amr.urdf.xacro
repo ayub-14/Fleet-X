@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!--
+  FLEET-X : top level AMR description.
+
+  Assembles the chassis, the two drive wheels and the ros2_control interface
+  block. The resulting document is consumed twice:
+
+    * robot_state_publisher turns it into the /tf tree, and
+    * it is spawned into Gazebo, where Gazebo converts it to SDF. The
+      gz_ros2_control system plugin embedded in it then reads the <ros2_control>
+      block straight out of the spawned model.
+
+  No Gazebo DiffDrive or JointStatePublisher system plugin is included: the
+  wheels are driven by ros2_control, and /joint_states is published by the
+  joint_state_broadcaster controller. Including them as well would make two
+  components fight over the same wheel joints.
+-->
+<robot name="fleet_x_amr" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- ==================== Dimensions ==================== -->
+  <xacro:include filename="$(find fleet_x_amr)/urdf/fleet_x_amr_dimensions.xacro"/>
+
+  <!-- ==================== Appearance ==================== -->
+  <xacro:include filename="$(find fleet_x_amr)/urdf/fleet_x_amr_materials.xacro"/>
+
+  <!-- ==================== Kinematics and dynamics ==================== -->
+  <xacro:include filename="$(find fleet_x_amr)/urdf/fleet_x_amr_chassis.xacro"/>
+  <xacro:include filename="$(find fleet_x_amr)/urdf/fleet_x_amr_wheels.xacro"/>
+
+  <!-- ==================== ros2_control ==================== -->
+  <xacro:include filename="$(find fleet_x_amr)/urdf/fleet_x_amr_ros2_control.xacro"/>
+
+  <!-- ==================== Sensors ==================== -->
+  <xacro:include filename="$(find fleet_x_amr)/urdf/fleet_x_amr_sensors.xacro"/>
+
+</robot>

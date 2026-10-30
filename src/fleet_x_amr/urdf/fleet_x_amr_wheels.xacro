@@ -1,0 +1,108 @@
+<?xml version="1.0"?>
+<!--
+  FLEET-X : drive wheels.
+
+  One macro is used for both wheels so the left and right sides are
+  guaranteed to be geometrically identical apart from the mirror parameters.
+
+  Why the two joint axes are mirrored
+  ==================================
+  Both wheels are spun by their own joint about the robot's lateral (Y) axis.
+  The LEFT wheel uses axis  0  1  0 and the RIGHT wheel uses axis  0 -1  0, so
+  that a POSITIVE wheel velocity command produces forward travel (+X) on both
+  sides. This keeps the sign convention of the two joints identical, which is
+  what diff_drive_controller assumes: it commands both joints with the same
+  sign to drive straight ahead. Without the mirror the robot would have to spin
+  in place to move forwards.
+-->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro name="fleet_x_amr_wheel"
+               params="prefix axis y_pos y_out">
+
+    <!-- Axle is WHEEL_RADIUS below base_link, i.e. exactly one wheel radius
+         above the ground plane, so the wheels rest on the ground. -->
+    <joint name="${prefix}_wheel_joint" type="continuous">
+      <parent link="base_link"/>
+      <child link="${prefix}_wheel"/>
+      <origin xyz="0 ${y_pos} ${-WHEEL_RADIUS}" rpy="0 0 0"/>
+      <axis xyz="${axis}"/>
+    </joint>
+
+    <link name="${prefix}_wheel">
+
+      <!-- Tyre. A URDF cylinder points along its local +Z; rotating it 90
+           degrees about X aligns the cylinder axis with the robot's Y axis,
+           which is the wheel's spin axis. -->
+      <visual>
+        <origin xyz="0 0 0" rpy="${pi / 2} 0 0"/>
+        <geometry>
+          <cylinder radius="${WHEEL_RADIUS}" length="${WHEEL_WIDTH}"/>
+        </geometry>
+        <material name="fleet_x_wheel_dark"/>
+      </visual>
+
+      <!-- Collision geometry matches the tyre so that Gazebo resolves the
+           ground contact from the real rolling radius. -->
+      <collision>
+        <origin xyz="0 0 0" rpy="${pi / 2} 0 0"/>
+        <geometry>
+          <cylinder radius="${WHEEL_RADIUS}" length="${WHEEL_WIDTH}"/>
+        </geometry>
+      </collision>
+
+      <!-- Hub cap: slightly proud of the tyre on both sides. -->
+      <visual>
+        <origin xyz="0 0 0" rpy="${pi / 2} 0 0"/>
+        <geometry>
+          <cylinder radius="${0.45 * WHEEL_RADIUS}"
+                   length="${1.08 * WHEEL_WIDTH}"/>
+        </geometry>
+        <material name="fleet_x_wheel_hub"/>
+      </visual>
+
+      <!-- Single radial bar across the outer wheel face. Purely cosmetic, but
+           it makes wheel rotation unambiguous to the eye in the Gazebo GUI
+           and in RViz. -->
+      <visual>
+        <origin xyz="0 ${y_out} 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="${1.6 * WHEEL_RADIUS} 0.006 0.012"/>
+        </geometry>
+        <material name="fleet_x_chassis_accent"/>
+      </visual>
+
+      <!-- Solid cylinder about its symmetry axis (Y):
+             I_y  = 1/2 m r^2
+             I_xx = I_zz = 1/12 m (3 r^2 + w^2)
+           with r = WHEEL_RADIUS and w = WHEEL_WIDTH. -->
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="${WHEEL_MASS}"/>
+        <inertia
+          ixx="${WHEEL_MASS * (3.0 * WHEEL_RADIUS * WHEEL_RADIUS + WHEEL_WIDTH * WHEEL_WIDTH) / 12.0}"
+          ixy="0.0" ixz="0.0"
+          iyy="${0.5 * WHEEL_MASS * WHEEL_RADIUS * WHEEL_RADIUS}"
+          iyz="0.0"
+          izz="${WHEEL_MASS * (3.0 * WHEEL_RADIUS * WHEEL_RADIUS + WHEEL_WIDTH * WHEEL_WIDTH) / 12.0}"/>
+      </inertial>
+
+    </link>
+
+  </xacro:macro>
+
+  <!-- Left wheel: spin axis +Y, sits on +Y, outward face points +Y. -->
+  <xacro:fleet_x_amr_wheel
+      prefix="left"
+      axis="0 1 0"
+      y_pos="${WHEEL_SEPARATION / 2.0}"
+      y_out="${WHEEL_WIDTH / 2.0 + 0.002}"/>
+
+  <!-- Right wheel: spin axis -Y, sits on -Y, outward face points -Y. -->
+  <xacro:fleet_x_amr_wheel
+      prefix="right"
+      axis="0 -1 0"
+      y_pos="${-WHEEL_SEPARATION / 2.0}"
+      y_out="${-WHEEL_WIDTH / 2.0 - 0.002}"/>
+
+</robot>

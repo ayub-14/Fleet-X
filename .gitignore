@@ -1,0 +1,81 @@
+# ---------------------------------------------------------------------------
+# ROS 2 / colcon build artefacts
+# ---------------------------------------------------------------------------
+build/
+install/
+log/
+logs/
+*.log
+
+# ---------------------------------------------------------------------------
+# Python
+# ---------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# ---------------------------------------------------------------------------
+# Editors and operating-system files
+# ---------------------------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ---------------------------------------------------------------------------
+# Local environment and credentials - never commit these
+# ---------------------------------------------------------------------------
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+.ssh/
+.git-credentials
+
+# ---------------------------------------------------------------------------
+# Generated simulation output
+# ---------------------------------------------------------------------------
+*.bag
+*.db3
+*.mcap
+*.sqlite3
+*.mp4
+*.avi
+logs/
+results/*.log
+
+# ---------------------------------------------------------------------------
+# Legacy material kept locally but not part of the public FLEET-X repository
+# ---------------------------------------------------------------------------
+
+# Early exploration used Josh Newans' Articubot One package. It has no
+# licence declaration, so it must not be redistributed here.
+src/articubot_one/
+
+# Abandoned gz_ros2_control pluginlib shim (excluded via COLCON_IGNORE).
+src/fleet_ros2_control_plugins/
+
+# Old single-robot Articubot demo notes and capture.
+ARTICUBOT_PROGRESS_LOG.txt
+DEMO_GUIDE.md
+DEMO_READINESS_PASS_FAIL.txt
+demo_screenshot.png
+
+# Environment notes and duplicate plain-text reports.
+FLEET_X_SETUP_REPORT.txt
+docs/*.txt
+
+# Empty files left behind by earlier experiments.
+/base_link
+/laser
+
+# Older ad-hoc validation scripts replaced by tests/smoke_test.sh.
+scripts/phase2_check.sh
+scripts/phase2_check_fixed.sh
+scripts/phase2b_check.sh

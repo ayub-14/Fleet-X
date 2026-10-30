@@ -1,0 +1,84 @@
+# FLEET-X : ros2_control controller configuration.
+#
+# This file is handed to the Gazebo ros2_control system plugin through the
+# <parameters> tag in urdf/fleet_x_amr_ros2_control.xacro. The plugin creates the
+# controller_manager and loads/activates both controllers listed here.
+#
+# The wheel geometry below MUST agree with urdf/fleet_x_amr_dimensions.xacro.
+# The launch file reads both this file and the xacro properties and fails fast
+# if they disagree, so these numbers can never silently drift from the URDF.
+#
+#   WHEEL_RADIUS      0.05 m
+#   WHEEL_SEPARATION  0.30 m
+
+controller_manager:
+  ros__parameters:
+    # ros2_control update loop. Comfortably above the 50 Hz odometry publish
+    # rate and far above the Gazebo physics step, so the control loop is never
+    # the limiting factor.
+    update_rate: 200
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    diff_drive_controller:
+      type: diff_drive_controller/DiffDriveController
+
+joint_state_broadcaster:
+  ros__parameters:
+    # Publish every joint the hardware exposes.
+    use_local_topics: false
+
+diff_drive_controller:
+  ros__parameters:
+    left_wheel_names: ["left_wheel_joint"]
+    right_wheel_names: ["right_wheel_joint"]
+
+    # --- geometry, mirrored from urdf/fleet_x_amr_dimensions.xacro ---
+    wheel_separation: 0.30
+    wheel_radius: 0.05
+
+    # Unit multipliers, kept explicit so that wheel calibration in a later
+    # phase only has to touch these and not the controller's own code.
+    wheel_separation_multiplier: 1.0
+    left_wheel_radius_multiplier: 1.0
+    right_wheel_radius_multiplier: 1.0
+
+    # --- topics and frames ---
+    # This controller version subscribes cmd_vel as geometry_msgs/msg/TwistStamped
+    # and declares no parameter to switch back to the un-stamped type, so the
+    # stamped message is the AMR's velocity command interface. Stamping is the
+    # better choice regardless: commands carry the simulation time they were
+    # issued for, so stale commands are recognisable as such.
+    # (use_stamped_vel is deliberately absent - it is not a declared parameter
+    # of this controller version and would be silently ignored.)
+    cmd_vel_timeout: 0.5
+
+    odom_frame_id: odom
+    base_frame_id: base_footprint
+    enable_odom_tf: true
+
+    publish_rate: 50.0
+
+    # Closed loop on the (integrated) wheel encoders. Setting this to true
+    # would publish odometry purely from the commanded velocity and hide any
+    # real tracking error, so it stays false.
+    open_loop: false
+
+    linear:
+      x:
+        has_velocity_limits: true
+        max_velocity: 1.0
+        min_velocity: -1.0
+        has_acceleration_limits: true
+        max_acceleration: 2.0
+        min_acceleration: -2.0
+
+    angular:
+      z:
+        has_velocity_limits: true
+        max_angular_velocity: 2.0
+        min_angular_velocity: -2.0
+        has_acceleration_limits: true
+        max_acceleration: 4.0
+        min_acceleration: -4.0

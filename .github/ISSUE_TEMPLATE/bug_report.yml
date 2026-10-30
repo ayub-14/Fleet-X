@@ -1,0 +1,49 @@
+name: Bug report
+description: Report a reproducible problem with the FLEET-X simulation or tooling
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting a problem. Please include enough detail to reproduce it.
+        Do not paste tokens, passwords, private keys or personal data.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What went wrong?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Exact commands, in order.
+      placeholder: |
+        source /opt/ros/jazzy/setup.bash
+        source install/setup.bash
+        ros2 launch fleet_x_amr fleet_x_amr_sim.launch.py gui:=false rviz:=false
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour and logs
+      description: Include relevant log lines. Redact anything private.
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, ROS 2 distribution, Gazebo version, GPU/driver if relevant.
+      placeholder: Ubuntu 24.04, ROS 2 Jazzy, Gazebo Harmonic 8.15
+    validations:
+      required: true
